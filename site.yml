@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Install neovim & snap
+      apt:
+        pkg:
+        - neovim
+        - snapd
+    - name: Install VS Code
+      community.general.snap:
+        name: code
+        classic: yes
+    - name: Add flathub repo
+      flatpak_remote:
+        name: flathub
+        state: present
+        flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+        method: user
+    - name: Install Discord
+      community.general.flatpak:
+        name: com.discordapp.Discord
+        state: present
+        method: user
+    - name: Install Spotify
+      community.general.flatpak:
+        name: com.spotify.Client
+        state: present
+        method: user
