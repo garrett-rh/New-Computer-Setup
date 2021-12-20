@@ -6,10 +6,12 @@
         pkg:
         - neovim
         - snapd
+        - caffeine
     - name: Install VS Code
       community.general.snap:
         name: code
         classic: yes
+      ignore_errors: yes
     - name: Add flathub repo
       flatpak_remote:
         name: flathub
@@ -26,3 +28,38 @@
         name: com.spotify.Client
         state: present
         method: user
+    - name: Get user home directory
+      ansible.builtin.command: /usr/bin/awk 'BEGIN { FS = ":" } ; /home\/[gG].*/{ print $6 }' /etc/passwd
+      register: myUsername
+    - name: Ensuring autostart directory exists
+      file:
+        path: "{{ myUsername.stdout }}/.config/autostart"
+        state: directory
+    - name: Creating caffeine autostart file
+      copy:
+        dest: "{{ myUsername.stdout }}/.config/autostart/caffeine.desktop"
+        content: |
+                [Desktop Entry]
+                Icon=caffeine
+                Name=Caffeine
+                Exec=/usr/bin/caffeine-indicator
+                Terminal=false
+                Type=Application
+                Categories=Utility;
+                Keywords=Screensaver,Power,Saving,Blank
+                StartupNotify=false
+                Comment=Temporarily deactivate the screensaver and sleep mode
+    - name: Creating dropboxd autostart file
+      copy:
+        dest: "{{ myUsername.stdout }}/.config/autostart/dropboxd.desktop"
+        content: |
+                [Desktop Entry]
+                Type=Application
+                Exec=/home/garrett/.dropbox-dist/dropboxd
+                Hidden=false
+                NoDisplay=false
+                X-GNOME-Autostart-enabled=true
+                Name[en_US]=Dropbox
+                Name=Dropbox
+                Comment[en_US]=Dropbox AutoStart
+                Comment=Dropbox AutoStart
